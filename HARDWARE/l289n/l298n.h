@@ -4,7 +4,7 @@
 #include "sys.h"
 #include "AllHead.h"
 
-#define MONITOR_ERROR   1
+#define MONITOR_ERROR   0
 #define TIM3_PartialRemap   1
 #define TIM3_FullRemap  0
 #define TIM4_Remap  0
@@ -26,7 +26,7 @@
 #endif
 
 void Motor_Init(void);
-void Motor_PWM_Init(u16 arr,u16 psc);
+// void Motor_PWM_Init(u16 arr,u16 psc);
 void Motor_Stop(void);
 void Motor_Forward(void);
 void Motor_Backward(void);

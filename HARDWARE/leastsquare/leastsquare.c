@@ -41,8 +41,8 @@ int regression(u8 *maxLine,u8 *maxLineH,u8 *maxLen,double *oK,int *ob)
 			  
 			  *oK = 0;
 			  /*用完清除无用的最长有效段，以便下一次采集*/
-			  *maxLen = 0;
-	      memset(maxLine,0,(NEEDHEIGHT)/(SKIPLINE));	  
+			//   *maxLen = 0;
+	    //   memset(maxLine,0,(NEEDHEIGHT)/(SKIPLINE));	  
 			
 				return NOSLOPE;
 		}
@@ -65,8 +65,8 @@ int regression(u8 *maxLine,u8 *maxLineH,u8 *maxLen,double *oK,int *ob)
 				}
 			
         /*用完清除无用的最长有效段，以便下一次采集*/
-			  *maxLen = 0;
-	      memset(maxLine,0,(NEEDHEIGHT)/(SKIPLINE));		
+			//   *maxLen = 0;
+	    //   memset(maxLine,0,(NEEDHEIGHT)/(SKIPLINE));		
 			  
 				return GOTSLOPE;
 		}

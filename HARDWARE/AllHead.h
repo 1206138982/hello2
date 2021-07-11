@@ -22,11 +22,11 @@
 #include "l298n.h"
 #include "move.h"
 
-#define BIKING	0
+#define BIKING	1
 #if defined(BIKING) && BIKING
 #define SIMPLE_METHOD	1
 #define PID_METHOD	0
-#define FENCHA_TEST	1
+#define FENCHA_TEST	0
 #define START_TEST	0
 #endif
 
@@ -40,6 +40,7 @@
 #endif
 
 #define DEBUG_PIN	0
+#define DEBUG_CAMERA	0
 #define CHANGE_PIN	1   	// change in ov7670.h when switch
 #define LCD_ON_OFF	1
 

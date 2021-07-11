@@ -14,10 +14,10 @@ extern u8 fencha_times;
 
 // u8 MidGreyVal = 0x78;//¿Éµ÷·§Öµ
 // u8 MidGreyVal = 0x60;//¿Éµ÷·§Öµ  for wet day in windows
-u8 MidGreyVal = 0x36;//¿Éµ÷·§Öµ for night test in windows
+u8 MidGreyVal = 0x58;//¿Éµ÷·§Öµ for day test in floor
+// u8 MidGreyVal = 0x36;//¿Éµ÷·§Öµ for night test in windows
 // u8 MidGreyVal = 0x48;//¿Éµ÷·§Öµ for night test in floor  fail!!
-// u8 MidGreyVal = 0x58;//¿Éµ÷·§Öµ for day test in floor
-// u8 MidGreyVal = 0x45;//¿Éµ÷·§Öµ for A4 paper in the night test
+// u8 MidGreyVal = 0x45;//¿Éµ÷·§Öµ for night test in A4 paper
 
 //½ØÈ¡³öÀ´µÄÍ¼Æ¬ ÊÇÔ­Í¼µÄ1/8
 u8 cutImg[NEEDHEIGHT][NEEDWITH] = {0};
@@ -46,15 +46,20 @@ u8 devLocRes = 0;
 */
 void cameraOperation(void)
 {  
-	u8 res = 0;
-	u8 res1 = 0;  
-	u8 res2 = 0;
+	u8 res,res1,res2,i;
 	u8 test_str[20] = {0};
 	static u8 line2stop = 0;
 	static u8 slope2stop = 0;
+	i = res2 = res1 = res = 0;
     cameraRefresh();//Í¼Ïñ²É¼¯¶þÖµ»¯ÒÔ¼°LCDÏÔÊ¾
 	/*½ô½Ó×Å·ÖÎö±ßÑØ£¬»ñÈ¡×óÓÒºÚµãÎ»ÖÃ£¬×îºóÒ»¸ö²ÎÊýÎª¼ì²âÊ±µÄ¼ä¸ôÐÐÊý*/
-	getLineEdge(leftBlackLoc,rightBlackLoc,0,NEEDHEIGHT-1,SKIPLINE);
+	getLineEdge(leftBlackLoc,rightBlackLoc,1,NEEDHEIGHT-1,SKIPLINE);   //the first is all 0,showing in serial port tool by printToUart(),so start at line 1
+#if defined(DEBUG_CAMERA) && DEBUG_CAMERA
+	for(i=0;i<(NEEDHEIGHT)/(SKIPLINE);i++){
+		printf("%d:%d_%d ",i,leftBlackLoc[i],rightBlackLoc[i]);
+	}
+	printf("\r\n\r\n");
+#endif
 #if defined(MAP_TESTB) && MAP_TESTB	
 	find_fencha_move();
 #endif
@@ -65,7 +70,7 @@ void cameraOperation(void)
 		//printf("NULL Slope\n");
 		line2stop++;
 		if(line2stop > 100){
-			// printStopMess(1);
+			printStopMess(1);
 #if defined(BIKING) && BIKING
 			RUNNING = 0;
 #endif
@@ -109,6 +114,9 @@ void cameraOperation(void)
 			motation();
 #endif
 			print2lcd();
+			maxUsefulLineLen = 0;
+	      	memset(maxUsefulBlackLine,0,(NEEDHEIGHT)/(SKIPLINE));
+	      	memset(maxUsefulBlackHeight,0,(NEEDHEIGHT)/(SKIPLINE));
 		}
 		else
 		{
@@ -231,11 +239,13 @@ void cameraRefresh(void)
 						/*½øÐÐÊý×éµÄ·­×ª´æ´¢*/
 						if( (u8)color > MidGreyVal) //×óÒÆ¹ýºó£¬µÍ°ËÎ»ÎªÐèÒªµÄYÖµ
 						{
-							cutImg[n / 4][m / 2] = 0xff;//°×É«
+							// cutImg[n / 4][m / 2] = 0xff;//°×É«
+							cutImg[NEEDHEIGHT-n / 4][NEEDWITH-m / 2] = 0xff;//°×É«
 						}
 						else 
 						{
-							cutImg[n / 4][m / 2] = 0x00;//ºÚÉ«									
+							// cutImg[n / 4][m / 2] = 0x00;//ºÚÉ«									
+							cutImg[NEEDHEIGHT-n / 4][NEEDWITH-m / 2] = 0x00;//ºÚÉ«									
 						}
 					}
 				}
@@ -369,6 +379,8 @@ void getLineEdge(u8 *leftBlackLoc,u8 *rightBlackLoc,u16 startLine,u16 endLine,u1
 	u16 i = 0;
 	//u16 j = 0;
 	u16 tmpHeight = 0; 
+	u8 left_loc_get = 0;
+	u8 right_loc_get = 0;
 #if defined(MAP_TESTA) && MAP_TESTA
 	u8 get_fencha = 0;
 	u8 fencha_start = 0;
@@ -378,6 +390,8 @@ void getLineEdge(u8 *leftBlackLoc,u8 *rightBlackLoc,u16 startLine,u16 endLine,u1
     /*¼ä¸ôÉ¨Ãè¼¸ÐÐ*/	
 	for(tmpHeight = startLine;tmpHeight < endLine;tmpHeight += skipLine)
 	{
+		left_loc_get = 0;
+		right_loc_get = 0;
 #if defined(MAP_TESTA) && MAP_TESTA
 		get_fencha = 0;
 #endif
@@ -393,16 +407,21 @@ void getLineEdge(u8 *leftBlackLoc,u8 *rightBlackLoc,u16 startLine,u16 endLine,u1
 #endif
 			if(i==NEEDWITH-4 && cutImg[tmpHeight][NEEDWITH-3]==0 && cutImg[tmpHeight][NEEDWITH-2]==0)
 			{
+				right_loc_get = 1;
 				*rightBlackLoc = NEEDWITH-2;
 				FLAG_BORDER = 2;
 			}
 				/*¼ì²âµ½ÕýÌø±ä£¬½ô½Ó×Å¾ÍÊÇÏàÍ¬µÄ¸ßµçÆ½£¬ÄÇÃ´¾ÍÊÇÓÒ±ßµÄºÚÉ«µã±»¼ì²âµ½ÁË i+1¾ÍÊÇºÚµãµÄÎ»ÖÃ*/
 			else if(  ((cutImg[tmpHeight][i] - cutImg[tmpHeight][i+1] ) <= UPJUMP) && 
 					(cutImg[tmpHeight][i+1] == cutImg[tmpHeight][i+2])  )
-			{*rightBlackLoc = i+1;}
+			{
+				right_loc_get = 1;
+				*rightBlackLoc = i+1;
+			}
 
 			if(i==0 && cutImg[tmpHeight][1]==0 && cutImg[tmpHeight][2]==0)
 			{
+				left_loc_get = 1;
 				*leftBlackLoc = 1;
 				FLAG_BORDER = 1;
 			}
@@ -410,7 +429,16 @@ void getLineEdge(u8 *leftBlackLoc,u8 *rightBlackLoc,u16 startLine,u16 endLine,u1
 			else if( (cutImg[tmpHeight][i] - cutImg[tmpHeight][i+1] ) >= DOWNJUMP && 
 					((cutImg[tmpHeight][i+1] == cutImg[tmpHeight][i+2])) )
 			//´æ´¢×óºÚµãµÄÎ»ÖÃ
-			{*leftBlackLoc = i+1;}
+			{
+				left_loc_get = 1;
+				*leftBlackLoc = i+1;
+			}
+		}
+		if(left_loc_get == 0){
+			*leftBlackLoc = 0;
+		}
+		if(right_loc_get == 0){
+			*rightBlackLoc = 0;
 		}
 			//×¼±¸ÏÂÒ»ÐÐ
 		rightBlackLoc ++;leftBlackLoc  ++;				
@@ -514,10 +542,7 @@ void getOneSideUsefulLine(u8 *needBlackLoc,u8 countZero,u8 *maxUBlackLine,u8 *ma
 	tmpMaxUsefulLineLen = 0;
 }
 
-
-/*
-º¯Êý¹¦ÄÜ£º´Ó±ß½çÊý×éÖÐ£¬ÌáÈ¡³öÓÐÐ§µÄÁ¬Ðø¶Î£¬È¡³ö×îÎªÓÐÐ§¿É¿¿µÄ¶Î¡£
-*/
+/*º¯Êý¹¦ÄÜ£º´Ó±ß½çÊý×éÖÐ£¬ÌáÈ¡³öÓÐÐ§µÄÁ¬Ðø¶Î£¬È¡³ö×îÎªÓÐÐ§¿É¿¿µÄ¶Î¡£*/
 int getUsefulLine()
 {	  
 	//Ä¬ÈÏ±ß½çÃ»ÓÐÕÒµ½
@@ -654,6 +679,7 @@ int getLineLocCompare2MidLine(int *realVerticalDevationLoc)//´«ÈëÓÃÓÚ·µ»ØµÄ±äÁ¿£
 {
 	u8 i = 0;
 	u8 j = 0;
+	u8 k = 0;
 	u8 res = 0;
 /*±£´æÁÙÊ±µÄ×óÓÒ×î³¤ÓÐÐ§±ß½çµÄÊý×é*/
 	u8 leftMaxULineLoc[((NEEDHEIGHT)/(SKIPLINE))] = {0};
@@ -696,13 +722,13 @@ int getLineLocCompare2MidLine(int *realVerticalDevationLoc)//´«ÈëÓÃÓÚ·µ»ØµÄ±äÁ¿£
 	/*Ã»ÓÐ¼ì²âµ½×ó±ßµÄ±ß½ç ÄÇÃ´¾ÍÊÇÌ«Æ«×óÁË£¬ÕâÊ±¸ù±¾È·¶¨²»ÁËÆ«ÒÆÁ¿£¬Ö»ÄÜ·µ»ØÉèÖÃµÄ×î´óÖµ*/
 	if((LeftDirect == LEFTLOST) && (RightDirect == GETDIRECT))
 	{
-		*realVerticalDevationLoc = -80;
+		*realVerticalDevationLoc = rightBlackLoc[countRightZero]/2-NEEDWITH/2;
 		return TOOLEFT;
 	}
 	/*Ã»ÓÐ¼ì²âµ½ÓÒ±ßµÄ±ß½ç*/
 	if((LeftDirect == GETDIRECT) && (RightDirect == RIGHTLOST))
 	{
-		*realVerticalDevationLoc = 80;
+		*realVerticalDevationLoc = (leftBlackLoc[countLeftZero]+NEEDWITH)/2 - NEEDWITH/2;
 		return TOORIGHT;
 	}
 	/*************************ÒÔÏÂ¾ùÎªÓÐÁ½±ß±ß½çµÄ*********************************/
@@ -714,11 +740,11 @@ int getLineLocCompare2MidLine(int *realVerticalDevationLoc)//´«ÈëÓÃÓÚ·µ»ØµÄ±äÁ¿£
 	//ÄÇÃ´ÏÖÔÚleftMaxULineLoc leftMaxULen ºÍ rightMaxULineLoc  rightMaxULenÖÐÒÑ¾­¿ÉÒÔÊ¹ÓÃÁË
 	//¹ýÂËÓÐÐ§¶ÎÌ«¶ÌµÄ±ß½ç£¬Ö±½Ó·µ»ØÌ«Æ«×óÆ«ÓÒ¼´¿É
 	if((leftMaxULen <= 2)){
-		*realVerticalDevationLoc = -80;
+		*realVerticalDevationLoc = rightBlackLoc[countRightZero]/2-NEEDWITH/2;
 		return TOOLEFT;
 	}
 	if((rightMaxULen <= 2)){
-		*realVerticalDevationLoc = 80;
+		*realVerticalDevationLoc = (leftBlackLoc[countLeftZero]+NEEDWITH)/2 - NEEDWITH/2;
 		return TOORIGHT;
 	}
 	/*»ñµÃÏß¿í*/
@@ -736,21 +762,25 @@ int getLineLocCompare2MidLine(int *realVerticalDevationLoc)//´«ÈëÓÃÓÚ·µ»ØµÄ±äÁ¿£
 		// if(leftMaxUBlackHeight[i] == MIDHORIHEIGHT)//·¢ÏÖ×ó±ßÓëË®Æ½ÖÐÏßÓÐ½»µã
 		if(leftMaxUBlackHeight[i]/SKIPLINE == MIDHORIHEIGHT)//·¢ÏÖ×ó±ßÓëË®Æ½ÖÐÏßÓÐ½»µã
 		{
+#if defined(DEBUG_CAMERA) && DEBUG_CAMERA
+			printf("%d:width/2:%d,leftloc:%d\r\n",i,(lineWidth / 2),leftMaxULineLoc[i]);
+			for(k=0;k<leftMaxULen;k++){
+				printf("%d:%d_%d ",k,leftMaxULineLoc[i],leftMaxUBlackHeight[k]);
+			}
+			printf("\r\n");
+#endif
 			/*¸ù¾ÝÖ±ÏßÎ»ÓÚÖÐµãµÄËÄ¸öÎ»ÖÃ£¬»ñµÃµÄÁ½ÖÖÊ½×Ó£¬Á½¸öÊ½×Ó½á¹û»¥ÎªÏà·´Êý*/
 		
 			//ÔòÕû¸öÏß¶¼Æ«ÓÒ£¬½á¹ûÎªÕý£¡
-			// if((leftMaxULineLoc[leftMaxUBlackHeight[i]] + (lineWidth / 2)) > MIDHORLOC)
-			if((leftMaxULineLoc[leftMaxUBlackHeight[i]/SKIPLINE] + (lineWidth / 2)) > MIDHORLOC)
+			if((leftMaxULineLoc[i] + (lineWidth / 2)) > MIDHORLOC)
 			{
-				// *realVerticalDevationLoc = (lineWidth / 2) - MIDHORLOC + leftMaxULineLoc[leftMaxUBlackHeight[i]];
-				*realVerticalDevationLoc = (lineWidth / 2) - MIDHORLOC + leftMaxULineLoc[leftMaxUBlackHeight[i]/SKIPLINE];
+				*realVerticalDevationLoc = (lineWidth / 2) - MIDHORLOC + leftMaxULineLoc[i];
 				return GETMIDLOC;
 			}
 			else  //Õû¸öÏß¶¼Æ«×ó£¬½á¹ûÎª¸º
 			{
 				//ÕýÖµµÄÆ«ÒÆÁ¿
-				// *realVerticalDevationLoc = MIDHORLOC - leftMaxULineLoc[leftMaxUBlackHeight[i]] - (lineWidth / 2);
-				*realVerticalDevationLoc = MIDHORLOC - leftMaxULineLoc[leftMaxUBlackHeight[i]/SKIPLINE] - (lineWidth / 2);
+				*realVerticalDevationLoc = MIDHORLOC - leftMaxULineLoc[i] - (lineWidth / 2);
 				*realVerticalDevationLoc = 0 - *realVerticalDevationLoc;//È¡·´ÒÔºó£¬·µ»ØÎª¸ºÖµ£¬±íÊ¾Îª×óÆ«
 				return GETMIDLOC;
 			}
@@ -764,17 +794,14 @@ int getLineLocCompare2MidLine(int *realVerticalDevationLoc)//´«ÈëÓÃÓÚ·µ»ØµÄ±äÁ¿£
 		{
 			/*¸ù¾ÝÖ±ÏßÎ»ÓÚÖÐµãµÄËÄ¸öÎ»ÖÃ£¬»ñµÃµÄÁ½ÖÖÊ½×Ó£¬Á½¸öÊ½×Ó½á¹û»¥ÎªÏà·´Êý*/
 			//ºÚÏßÆ«ÓÒ
-			// if((rightMaxULineLoc[rightMaxUBlackHeight[i]] + (lineWidth / 2)) > MIDHORLOC)
-			if((rightMaxULineLoc[rightMaxUBlackHeight[i]/SKIPLINE] + (lineWidth / 2)) > MIDHORLOC)
+			if((rightMaxULineLoc[i] + (lineWidth / 2)) > MIDHORLOC)
 			{
-				// *realVerticalDevationLoc = rightMaxULineLoc[rightMaxUBlackHeight[i]] - MIDHORLOC - (lineWidth / 2);
-				*realVerticalDevationLoc = rightMaxULineLoc[rightMaxUBlackHeight[i]/SKIPLINE] - MIDHORLOC - (lineWidth / 2);
+				*realVerticalDevationLoc = rightMaxULineLoc[i] - MIDHORLOC - (lineWidth / 2);
 				return GETMIDLOC;
 			}
 			else
 			{
-				// *realVerticalDevationLoc = (lineWidth / 2) - rightMaxULineLoc[rightMaxUBlackHeight[i]] + MIDHORLOC;
-				*realVerticalDevationLoc = (lineWidth / 2) - rightMaxULineLoc[rightMaxUBlackHeight[i]/SKIPLINE] + MIDHORLOC;
+				*realVerticalDevationLoc = (lineWidth / 2) - rightMaxULineLoc[i] + MIDHORLOC;
 				*realVerticalDevationLoc = 0 - *realVerticalDevationLoc;
 				return GETMIDLOC;
 			}

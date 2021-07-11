@@ -3,10 +3,12 @@
 #include "grey.h"
 
 // u16	speed_min = 380;   // the speed_min will change to 0 unexcepted because of the u16 type,when change to int,fix it
-int	speed_min = 380;  //min:400 
+int	speed_min = 380;  //min:420 for mg310 using l298n sanlun 
 u16 max_add = 230;   //200 can finish the wandao in pid method
-u8 monitor_error_add = 50;
 extern u8 RUNNING;
+#if defined(MONITOR_ERROR) && MONITOR_ERROR
+u8 monitor_error_add = 50;
+#endif
 
 void Motor_Init(void)
 {
@@ -146,18 +148,34 @@ void Motor_start(void)
 
 void motor_test(void)
 {
-	delay_ms(500);
-	// delay_ms(1500);
+	delay_ms(1500);
+	delay_ms(1500);
+	delay_ms(1500);
+	Motor_Stop();
+	return ;
+
+	// Motor_Turnleft();
+	// delay_ms(1000);
+	// Motor_Turnright();
+	// delay_ms(1000);
+	// Motor_Forward();
+	// delay_ms(1000);
+	// Motor_Stop();
 	// return ;
 
+	// delay_ms(500);
 	// left_add(200);
 	// right_add(0);
 	// delay_ms(1500);
+	// Motor_Stop();
 	// return ;
 
-	left_add(0);
-	right_add(200);
-	delay_ms(1500);
+	// delay_ms(500);
+	// left_add(0);
+	// right_add(200);
+	// delay_ms(1500);
+	// Motor_Stop();
+	// return ;
 }
 
 void turnA(void)
@@ -177,40 +195,40 @@ void turnA(void)
 //PWM 部分初始化 
 //arr：自动重装值
 //psc：时钟预分频数
-void Motor_PWM_Init(u16 arr,u16 psc)
-{  
-	// GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE);
-	GPIO_InitTypeDef GPIO_InitStructure;
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	TIM_OCInitTypeDef  TIM_OCInitStructure;
+// void Motor_PWM_Init(u16 arr,u16 psc)
+// {  
+// 	// GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE);
+// 	GPIO_InitTypeDef GPIO_InitStructure;
+// 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+// 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);	//使能定时器4时钟
- 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB  | RCC_APB2Periph_AFIO, ENABLE);  //使能GPIO外设和AFIO复用功能模块时钟
+// 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);	//使能定时器4时钟
+//  	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB  | RCC_APB2Periph_AFIO, ENABLE);  //使能GPIO外设和AFIO复用功能模块时钟
 	
-	GPIO_PinRemapConfig(GPIO_Remap_TIM4, ENABLE); //Timer4重映射 TIM4_CH3->PB8    TIM4_CH4->PB9
+// 	GPIO_PinRemapConfig(GPIO_Remap_TIM4, ENABLE); //Timer4重映射 TIM4_CH3->PB8    TIM4_CH4->PB9
  
-   //设置该引脚为复用输出功能,输出TIM_CH1和TIM_CH2和的PWM脉冲波形
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8|GPIO_Pin_9; //TIM_CH3和TIM_CH4 
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;  //复用推挽输出
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);//初始化GPIO
+//    //设置该引脚为复用输出功能,输出TIM_CH1和TIM_CH2和的PWM脉冲波形
+// 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8|GPIO_Pin_9; //TIM_CH3和TIM_CH4 
+// 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;  //复用推挽输出
+// 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+// 	GPIO_Init(GPIOB, &GPIO_InitStructure);//初始化GPIO
  
-   //初始化TIM3
-	TIM_TimeBaseStructure.TIM_Period = arr; //设置在下一个更新事件装入活动的自动重装载寄存器周期的值
-	TIM_TimeBaseStructure.TIM_Prescaler =psc; //设置用来作为TIMx时钟频率除数的预分频值 
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0; //设置时钟分割:TDTS = Tck_tim
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIM向上计数模式
-	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); //根据TIM_TimeBaseInitStruct中指定的参数初始化TIMx的时间基数单位
+//    //初始化TIM3
+// 	TIM_TimeBaseStructure.TIM_Period = arr; //设置在下一个更新事件装入活动的自动重装载寄存器周期的值
+// 	TIM_TimeBaseStructure.TIM_Prescaler =psc; //设置用来作为TIMx时钟频率除数的预分频值 
+// 	TIM_TimeBaseStructure.TIM_ClockDivision = 0; //设置时钟分割:TDTS = Tck_tim
+// 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIM向上计数模式
+// 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); //根据TIM_TimeBaseInitStruct中指定的参数初始化TIMx的时间基数单位
 	
-	//初始化TIM4 Channel2 PWM模式	 
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; //选择定时器模式:TIM脉冲宽度调制模式2
- 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //输出极性:TIM输出比较极性高
-	TIM_OC3Init(TIM4, &TIM_OCInitStructure);  //初始化外设TIM4 OC3
-	TIM_OC4Init(TIM4, &TIM_OCInitStructure);  //初始化外设TIM4 OC4
+// 	//初始化TIM4 Channel2 PWM模式	 
+// 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; //选择定时器模式:TIM脉冲宽度调制模式2
+//  	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
+// 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //输出极性:TIM输出比较极性高
+// 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);  //初始化外设TIM4 OC3
+// 	TIM_OC4Init(TIM4, &TIM_OCInitStructure);  //初始化外设TIM4 OC4
 
-	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);  //使能TIM4在CCR1上的预装载寄存器
-	TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);  //使能TIM4在CCR2上的预装载寄存器
+// 	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);  //使能TIM4在CCR1上的预装载寄存器
+// 	TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);  //使能TIM4在CCR2上的预装载寄存器
  
-	TIM_Cmd(TIM4, ENABLE);  //使能TIM4
-}
+// 	TIM_Cmd(TIM4, ENABLE);  //使能TIM4
+// }

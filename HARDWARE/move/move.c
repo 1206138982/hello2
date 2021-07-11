@@ -1,19 +1,25 @@
 #include "move.h"
 
-#define MAX_LENGTH2LCD	20
+#define MAX_LENGTH2LCD	25
 extern double overK;
 extern int b;
 extern int  lineDeviationLoc;
 extern u8 leftBlackLoc[(NEEDHEIGHT)/(SKIPLINE)];
 extern u8 rightBlackLoc[(NEEDHEIGHT)/(SKIPLINE)];
 extern u8 devLocRes;
+extern u8 FLAG_BORDER;
+
+#if defined(DEBUG_CAMERA) && DEBUG_CAMERA
+extern u8 maxUsefulLineLen;
+extern u8 maxUsefulBlackLine[(NEEDHEIGHT)/(SKIPLINE)];
+extern u8 maxUsefulBlackHeight[(NEEDHEIGHT)/(SKIPLINE)];
+#endif
 
 #if defined(BIKING) && BIKING
 extern u8 RUNNING;
 #if defined(PID_METHOD) && PID_METHOD
 extern pid_struct	line_pid;
 extern pid_struct	oK_pid;
-extern u8 FLAG_BORDER;
 int speed_change = 0;
 #endif
 #endif
@@ -35,7 +41,7 @@ void print2lcd(void)
     u8 temp_str[MAX_LENGTH2LCD] = {0};
 	int i,k_x,k_y;
 
-	k_x = 30;
+	k_x = 20;
 	k_y = 160;
     for(i=0;i<MAX_LENGTH2LCD;i++)
         str_info2lcd[i] = 32;
@@ -46,11 +52,13 @@ void print2lcd(void)
 			break;
 		}
 		case TOOLEFT:{
-            strncpy(str_info2lcd,"TOO LEFT",strlen("TOO LEFT"));
+            sprintf(temp_str,"TOO LEFT,Loc:%d",lineDeviationLoc);
+            strncpy(str_info2lcd,temp_str,strlen(temp_str));
 			break;
 		}
 		case TOORIGHT:{
-            strncpy(str_info2lcd,"TOO RIGHT",strlen("TOO RIGHT"));
+            sprintf(temp_str,"TOO RIGHT,Loc:%d",lineDeviationLoc);
+            strncpy(str_info2lcd,temp_str,strlen(temp_str));
 			break;
 		}
 		case NOMIDLOC:{
@@ -72,16 +80,25 @@ void print2lcd(void)
     }
     LCD_SimpleString(k_x,k_y,str_info2lcd,MAX_LENGTH2LCD);
 
-	k_x = 30;
+	k_x = 20;
 	k_y = 190;
     for(i=0;i<MAX_LENGTH2LCD;i++)
         str_info2lcd[i] = 32;
-    sprintf(temp_str,"oK:%.3f oB:%d",overK,b);
+    // sprintf(temp_str,"oK:%.3f oB:%d",overK,b);
+    sprintf(temp_str,"oK:%.3f oB:%d BORDER:%d",overK,b,FLAG_BORDER);
     strncpy(str_info2lcd,temp_str,strlen(temp_str));
 	LCD_SimpleString(k_x,k_y,str_info2lcd,MAX_LENGTH2LCD);
+#if defined(DEBUG_CAMERA) && DEBUG_CAMERA
+    if(overK > 1.0){
+        for(i=0;i<maxUsefulLineLen;i++){
+            printf("%d_%d ",maxUsefulBlackLine[i],maxUsefulBlackHeight[i]);
+        }
+        printf("\r\n\r\n");
+    }
+#endif
 
 #if defined(PID_METHOD) && PID_METHOD
-	k_x = 30;
+	k_x = 20;
 	k_y = 220;
     for(i=0;i<MAX_LENGTH2LCD;i++)
         str_info2lcd[i] = 32;
@@ -156,38 +173,37 @@ void motation(void)
         }
     }
 #else
-    u8 loc2turn,turn_step_delay,str_delay;
+    u8 loc2turn,turn_step_delay,str_delay,ok_delay;
     float oK2turn;
-    loc2turn = 18;  //default 20
-    turn_step_delay = 35;   //default 60
-    str_delay = 50;    //default  140
+    loc2turn = 20;  //default 20
+    turn_step_delay = 100;   //default 35
+    str_delay = 150;    //default  50
     oK2turn = 0.3;
-    if(overK > oK2turn){
+    ok_delay = 50;
+    if(lineDeviationLoc > loc2turn){
         Motor_Turnright();
         delay_ms(turn_step_delay);
         Motor_Stop();
     }
-    else if(overK < -oK2turn){
+    else if(lineDeviationLoc < -loc2turn){
         Motor_Turnleft();
         delay_ms(turn_step_delay);
         Motor_Stop();
     }
     else{
-        if(lineDeviationLoc > loc2turn){
-            Motor_Turnright();
-            delay_ms(turn_step_delay);
-            Motor_Stop();
-        }
-        else if(lineDeviationLoc < -loc2turn){
-            Motor_Turnleft();
-            delay_ms(turn_step_delay);
-            Motor_Stop();
-        }
-        else{
-            Motor_Forward();
-            delay_ms(str_delay);
-            Motor_Stop();
-        }
+        Motor_Forward();
+        delay_ms(str_delay);
+        Motor_Stop();
+    }
+    if(overK > oK2turn){
+        Motor_Turnright();
+        delay_ms(ok_delay);
+        Motor_Stop();
+    }
+    else if(overK < -oK2turn){
+        Motor_Turnleft();
+        delay_ms(ok_delay);
+        Motor_Stop();
     }
 #endif
 #endif
