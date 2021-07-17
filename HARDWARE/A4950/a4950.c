@@ -25,12 +25,12 @@ void set_speed(int speed_L,int speed_R)
         TIM_SetCompare2(TIM3,MAX_ARR);
     }
     if(speed_R >= 0){
-        TIM_SetCompare1(TIM4,MAX_ARR);
-        TIM_SetCompare2(TIM4,(int)(MAX_ARR*(1-speed_R/100.0)));
+        TIM_SetCompare3(TIM4,MAX_ARR);
+        TIM_SetCompare4(TIM4,(int)(MAX_ARR*(1-speed_R/100.0)));
     }
     else if(speed_R < 0){
-        TIM_SetCompare1(TIM4,(int)(MAX_ARR*(1+speed_R/100.0)));
-        TIM_SetCompare2(TIM4,MAX_ARR);
+        TIM_SetCompare3(TIM4,(int)(MAX_ARR*(1+speed_R/100.0)));
+        TIM_SetCompare4(TIM4,MAX_ARR);
     }
 }
 
@@ -69,11 +69,11 @@ void motorA_test(void)
     delay_ms(1000);
     stop_forward();
 
-    add_speed(20,0);
+    set_speed(40,0);
     delay_ms(1000);
     stop_forward();
 
-    add_speed(0,20);
+    set_speed(0,40);
     delay_ms(1000);
     stop_forward();
 	return ;

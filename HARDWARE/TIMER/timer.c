@@ -348,13 +348,13 @@ void motorA_PWM_Init(u16 arr,u16 psc)
     GPIO_InitStrue.GPIO_Mode=GPIO_Mode_AF_PP;    // 复用推挽
     GPIO_InitStrue.GPIO_Speed=GPIO_Speed_50MHz;    //设置最大输出速度
     GPIO_Init(GPIOB,&GPIO_InitStrue);                //GPIO端口初始化设置
-    
-    GPIO_InitStrue.GPIO_Pin=GPIO_Pin_6;     // TIM4_CH1
+	
+    GPIO_InitStrue.GPIO_Pin=GPIO_Pin_8;     // TIM4_CH3
     GPIO_InitStrue.GPIO_Mode=GPIO_Mode_AF_PP;    // 复用推挽
     GPIO_InitStrue.GPIO_Speed=GPIO_Speed_50MHz;    //设置最大输出速度
     GPIO_Init(GPIOB,&GPIO_InitStrue);                //GPIO端口初始化设置
 
-    GPIO_InitStrue.GPIO_Pin=GPIO_Pin_7;     // TIM4_CH2
+    GPIO_InitStrue.GPIO_Pin=GPIO_Pin_9;     // TIM4_CH4
     GPIO_InitStrue.GPIO_Mode=GPIO_Mode_AF_PP;    // 复用推挽
     GPIO_InitStrue.GPIO_Speed=GPIO_Speed_50MHz;    //设置最大输出速度
     GPIO_Init(GPIOB,&GPIO_InitStrue);                //GPIO端口初始化设置
@@ -371,13 +371,13 @@ void motorA_PWM_Init(u16 arr,u16 psc)
     TIM_OCInitStrue.TIM_OutputState=TIM_OutputState_Enable;// 输出使能
 	TIM_OC1Init(TIM3,&TIM_OCInitStrue);			// TIM3_CH1    PB4
     TIM_OC2Init(TIM3,&TIM_OCInitStrue);        // TIM3_CH2    PB5
-	TIM_OC1Init(TIM4,&TIM_OCInitStrue);			// TIM4_CH1    PB6
-    TIM_OC2Init(TIM4,&TIM_OCInitStrue);        // TIM4_CH2    PB7
+	TIM_OC3Init(TIM4,&TIM_OCInitStrue);			// TIM4_CH3    PB8
+    TIM_OC4Init(TIM4,&TIM_OCInitStrue);        // TIM4_CH4    PB9
  
     TIM_OC1PreloadConfig(TIM3,TIM_OCPreload_Enable);        //使能预装载寄存器
     TIM_OC2PreloadConfig(TIM3,TIM_OCPreload_Enable);        //使能预装载寄存器
-    TIM_OC1PreloadConfig(TIM4,TIM_OCPreload_Enable);        //使能预装载寄存器
-    TIM_OC2PreloadConfig(TIM4,TIM_OCPreload_Enable);        //使能预装载寄存器
+    TIM_OC3PreloadConfig(TIM4,TIM_OCPreload_Enable);        //使能预装载寄存器
+    TIM_OC4PreloadConfig(TIM4,TIM_OCPreload_Enable);        //使能预装载寄存器
     
     TIM_Cmd(TIM3,ENABLE);        //使能TIM3
     TIM_Cmd(TIM4,ENABLE);        //使能TIM3
