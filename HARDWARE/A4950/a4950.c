@@ -1,190 +1,83 @@
-#include "l298n.h"
-#include "AllHead.h"
-#include "grey.h"
+#include "a4950.h"
 
-// u16	speed_min = 380;   // the speed_min will change to 0 unexcepted because of the u16 type,when change to int,fix it
-int	speed_min = 380;  //min:420 for mg310 using l298n sanlun 
-u16 max_add = 230;   //200 can finish the wandao in pid method
+/*  tim3 for left motor
+    forward moving when tim3 ch1 > tim3 ch2
+    tim4 for right motor
+    forward moving when tim4 ch1 > tim4 ch2    */
+
+#define SPEED_MIN   30
 extern u8 RUNNING;
-#if defined(MONITORL_ERROR) && MONITORL_ERROR
-u8 monitor_error_add = 50;
-#endif
 
-void Motor_Init(void)
+void set_speed(int speed_L,int speed_R)
 {
-	GPIO_InitTypeDef  GPIO_InitStructure;
-	// RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);	    //使能PA端口时钟
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOG, ENABLE);	    //使能PA端口时钟
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;				 //端口配置
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 //推挽输出
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		 //IO口速度为50MHz
-	// GPIO_Init(GPIOA, &GPIO_InitStructure);					 //根据设定参数初始化PA4/5/6/7
-	GPIO_Init(GPIOG, &GPIO_InitStructure);					 //根据设定参数初始化PA4/5/6/7
+    if(RUNNING == 0)
+        return ;
+    if(speed_L>100 || speed_L<-100 || speed_R>100 || speed_R<-100){
+        printf("set speed error!\r\n");
+        return ;
+    }
+    if(speed_L >= 0){
+        TIM_SetCompare1(TIM3,MAX_ARR);
+        TIM_SetCompare2(TIM3,(int)(MAX_ARR*(1-speed_L/100.0)));
+    }
+    else if(speed_L < 0){
+        TIM_SetCompare1(TIM3,(int)(MAX_ARR*(1+speed_L/100.0)));
+        TIM_SetCompare2(TIM3,MAX_ARR);
+    }
+    if(speed_R >= 0){
+        TIM_SetCompare1(TIM4,MAX_ARR);
+        TIM_SetCompare2(TIM4,(int)(MAX_ARR*(1-speed_R/100.0)));
+    }
+    else if(speed_R < 0){
+        TIM_SetCompare1(TIM4,(int)(MAX_ARR*(1+speed_R/100.0)));
+        TIM_SetCompare2(TIM4,MAX_ARR);
+    }
 }
 
-void Motor_Stop(void)
+void add_speed(uint8_t L_add,uint8_t R_add)
 {
-	Mr_P = 0;
-	Mr_N = 0;
-	Ml_P = 0;
-	Ml_N = 0;
+    int L_speed,R_speed;
+    if(L_add>100-SPEED_MIN){
+        L_add = 100-SPEED_MIN;
+    }
+    if(R_add>100-SPEED_MIN){
+        R_add = 100-SPEED_MIN;
+    }
+    L_speed = SPEED_MIN+L_add;
+    R_speed = SPEED_MIN+R_add;
+    set_speed(L_speed,R_speed);
 }
 
-void Motor_Forward(void)
+void start_forward(void)
 {
-	if(RUNNING == 0)
-		return ;
-	Mr_P = 1;
-	Mr_N = 0;
-	Ml_P = 1;
-	Ml_N = 0;
+    set_speed(SPEED_MIN,SPEED_MIN);
 }
 
-void Motor_Backward(void)
+void stop_forward(void)
 {
-	if(RUNNING == 0)
-		return ;
-	Mr_P = 0;
-	Mr_N = 1;
-	Ml_P = 0;
-	Ml_N = 1;
+    set_speed(0,0);
 }
 
-void Motor_Turnleft(void)
+void MotorA_start(void)
 {
-	if(RUNNING == 0)
-		return ;
-	Mr_P = 1;
-	Mr_N = 0;
-	Ml_P = 0;
-	Ml_N = 0;
+	motorA_PWM_Init(MAX_ARR,0);
 }
 
-void Motor_Turnright(void)
+void motorA_test(void)
 {
-	if(RUNNING == 0)
-		return ;
-	Mr_P = 0;
-	Mr_N = 0;
-	Ml_P = 1;
-	Ml_N = 0;
-}
+    start_forward();
+    delay_ms(1000);
+    stop_forward();
 
-void Motor_Leftback(void)
-{
-	if(RUNNING == 0)
-		return ;
-	Mr_P = 0;
-	Mr_N = 0;
-	Ml_P = 0;
-	Ml_N = 1;
-}
+    add_speed(20,0);
+    delay_ms(1000);
+    stop_forward();
 
-void Motor_Rightback(void)
-{
-	if(RUNNING == 0)
-		return ;
-	Mr_P = 0;
-	Mr_N = 1;
-	Ml_P = 0;
-	Ml_N = 0;
-}
-
-void left_add(int add)
-{
-	if(RUNNING == 0)
-		return ;
-	if(add < 0){
-		printf("error in left_add() add < 0\r\n");
-		return ;
-	}
-	if(add > max_add){
-		printf("in left_add() add:%d\tbeyond the max_add:%d\r\n",add,max_add);
-		add = max_add;
-		printStopMess(3);
-		// RUNNING = 0;
-	}
-	TIM_SetCompare2(TIM3,speed_min-add);
-}
-
-void right_add(int add)
-{
-	if(RUNNING == 0)
-		return ;
-	if(add < 0){
-		printf("error in right_add() add < 0\r\n");
-		return ;
-	}
-	if(add > max_add){
-		printf("in right_add() add:%d\tbeyond the max_add:%d\r\n",add,max_add);
-		add = max_add;
-		printStopMess(4);
-		// RUNNING = 0;
-	}
-#if defined(MONITORL_ERROR) && MONITORL_ERROR
-	TIM_SetCompare1(TIM3,speed_min-add-monitor_error_add);
-#else
-	TIM_SetCompare1(TIM3,speed_min-add);
-#endif
-}
-
-void Motor_startL(void)
-{
-	int sp_start=350;
-	Motor_Init();
-	monitor_PWM_Init(899,0);
-	TIM_SetCompare1(TIM3,sp_start);   //the right monitor	PB4
-	TIM_SetCompare2(TIM3,sp_start); 	// the left monitor		PB5
-	Motor_Forward();
-	delay_ms(10);
-	right_add(0);
-	left_add(0);
-}
-
-void motor_test(void)
-{
-	delay_ms(1500);
-	delay_ms(1500);
-	delay_ms(1500);
-	Motor_Stop();
+    add_speed(0,20);
+    delay_ms(1000);
+    stop_forward();
 	return ;
 
-	// Motor_Turnleft();
-	// delay_ms(1000);
-	// Motor_Turnright();
-	// delay_ms(1000);
-	// Motor_Forward();
-	// delay_ms(1000);
-	// Motor_Stop();
-	// return ;
-
-	// delay_ms(500);
-	// left_add(200);
-	// right_add(0);
-	// delay_ms(1500);
-	// Motor_Stop();
-	// return ;
-
-	// delay_ms(500);
-	// left_add(0);
-	// right_add(200);
-	// delay_ms(1500);
-	// Motor_Stop();
-	// return ;
-}
-
-void turnA(void)
-{
-	if(RUNNING == 0)
-		return ;
-	Motor_Forward();
-	delay_ms(400);
-	Motor_Turnright();
-	delay_ms(800);
-	Motor_Stop();
-	// delay_ms(1500);
-	// delay_ms(1500);
-	// RUNNING = 0;
 }
 
 // /* https://blog.csdn.net/qq_36958104/article/details/83661117  */

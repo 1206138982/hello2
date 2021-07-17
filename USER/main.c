@@ -58,8 +58,8 @@ int main(void)
 	// OLED_Refresh_Gram();
 	delay_ms(500);
 #if defined(BIKING) && BIKING
-	Motor_start();  // for l298n
-	// Motor_PWM_Init(7199,0);  //for A4950
+	// Motor_startL();  // for l298n
+	MotorA_start();		//for A4950 in motor.c
 	RUNNING = 1;
 #if defined(PID_METHOD) && PID_METHOD
 	PID_init(&line_pid,1.6,0.07,5);
@@ -70,8 +70,8 @@ int main(void)
 */
 #endif
 #if defined(START_TEST) && START_TEST
-	motor_test();      // for l298n
-	// motor_pwm_test();    // for A4950
+	// motor_test();      // for l298n
+	motorA_test();		//for A4950
 	RUNNING = 0;
 #endif
 #endif

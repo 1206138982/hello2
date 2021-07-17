@@ -343,14 +343,3 @@ void find_fencha_move(void)
 //         }
 //     }
 // }
-
-// #if defined(DEBUG_PIN) && DEBUG_PIN
-// 	static u8 test_flag = 1;
-// #endif
-// #if defined(DEBUG_PIN) && DEBUG_PIN
-// 			TEST_TIMER = test_flag;
-// 			if(test_flag)
-// 				test_flag = 0;
-// 			else
-// 				test_flag = 1;
-// #endif
