@@ -181,29 +181,29 @@ void motation(void)
     oK2turn = 0.3;
     ok_delay = 50;
     if(lineDeviationLoc > loc2turn){
-        Motor_Turnright();
+        turn_right_A();
         delay_ms(turn_step_delay);
-        Motor_Stop();
+        stop_forward();
     }
     else if(lineDeviationLoc < -loc2turn){
-        Motor_Turnleft();
+        turn_left_A();
         delay_ms(turn_step_delay);
-        Motor_Stop();
+        stop_forward();
     }
     else{
-        Motor_Forward();
+        start_forward();
         delay_ms(str_delay);
-        Motor_Stop();
+        stop_forward();
     }
     if(overK > oK2turn){
-        Motor_Turnright();
+        turn_right_A();
         delay_ms(ok_delay);
-        Motor_Stop();
+        stop_forward();
     }
     else if(overK < -oK2turn){
-        Motor_Turnleft();
+        turn_left_A();
         delay_ms(ok_delay);
-        Motor_Stop();
+        stop_forward();
     }
 #endif
 #endif

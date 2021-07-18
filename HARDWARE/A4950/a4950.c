@@ -58,6 +58,16 @@ void stop_forward(void)
     set_speed(0,0);
 }
 
+void turn_left_A(void)
+{
+    set_speed(0,SPEED_MIN);
+}
+
+void turn_right_A(void)
+{
+    set_speed(SPEED_MIN,0);
+}
+
 void MotorA_start(void)
 {
 	motorA_PWM_Init(MAX_ARR,0);
@@ -65,9 +75,18 @@ void MotorA_start(void)
 
 void motorA_test(void)
 {
-    start_forward();
+    turn_left_A();
+    delay_ms(1000);
+    turn_right_A();
     delay_ms(1000);
     stop_forward();
+    return ;
+
+    start_forward();
+    delay_ms(1500);
+    delay_ms(1500);
+    stop_forward();
+    return ;
 
     set_speed(40,0);
     delay_ms(1000);
