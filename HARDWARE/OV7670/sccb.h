@@ -11,13 +11,13 @@
 //创建日期:2015/1/18
 //版本：V1.0		    							    							  
 //////////////////////////////////////////////////////////////////////////////////
-  
+/*  SCL:PC10    SDA:PC11   */
 #if defined(CHANGE_PIN) && CHANGE_PIN
-#define SCCB_SDA_IN()  {GPIOB->CRH&=0XFFF0FFFF;GPIOB->CRH|=0X00080000;}
-#define SCCB_SDA_OUT() {GPIOB->CRH&=0XFFF0FFFF;GPIOB->CRH|=0X00030000;}
-#define SCCB_SCL    		PBout(13)	 	//SCL
-#define SCCB_SDA    		PBout(12) 		//SDA	 
-#define SCCB_READ_SDA    	PBin(12)  		//输入SDA    
+#define SCCB_SDA_IN()  {GPIOC->CRH&=0XFFFF0FFF;GPIOC->CRH|=0X00008000;}
+#define SCCB_SDA_OUT() {GPIOC->CRH&=0XFFFF0FFF;GPIOC->CRH|=0X00003000;}
+#define SCCB_SCL    		PCout(10)	 	//SCL
+#define SCCB_SDA    		PCout(11) 		//SDA	 
+#define SCCB_READ_SDA    	PCin(11)  		//输入SDA    
 #else
 #define SCCB_SDA_IN()  {GPIOC->CRL&=0XFFFFF0FF;GPIOC->CRL|=0X00000800;}
 #define SCCB_SDA_OUT() {GPIOC->CRL&=0XFFFFF0FF;GPIOC->CRL|=0X00000300;}

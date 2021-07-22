@@ -32,13 +32,13 @@ u8 OV7670_Init(void)
  	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB|RCC_APB2Periph_GPIOC|RCC_APB2Periph_GPIOD|RCC_APB2Periph_GPIOG|RCC_APB2Periph_AFIO, ENABLE);	 //使能相关端口时钟
 #endif
 
-#if defined(CHANGE_PIN) && CHANGE_PIN
-/* PB15 for OV7670_VSYNC pin */
-	GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_15; 	//PA8 输入 上拉
+#if defined(CHANGE_PIN) && CHANGE_PIN 	
+/* PC12 for OV7670_VSYNC pin */
+	GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_12; 	//PA8 输入 上拉
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
- 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_SetBits(GPIOB,GPIO_Pin_15);
+ 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_SetBits(GPIOC,GPIO_Pin_12);
 
 /*	PE6 for PWDN pin always LOW	
 	PE4 for FIFO_RCK pin	
