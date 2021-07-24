@@ -18,7 +18,7 @@
 //psc：时钟预分频数
 //这里使用的是定时器3!
 
-extern u32 timerCounter;
+// extern u32 timerCounter;
 
 void TIM3_Int_Init(u16 arr,u16 psc)
 {
@@ -52,11 +52,11 @@ void TIM3_IRQHandler(void)   //TIM3中断
 		{
 				TIM_ClearITPendingBit(TIM3, TIM_IT_Update  );  //清除TIMx的中断待处理位:TIM 中断源 
 				LED1=!LED1;
-			  timerCounter ++;
-			  if(timerCounter >= 100)  //防止溢出
-				{
-					  timerCounter = 0;
-				}
+			//   timerCounter ++;
+			//   if(timerCounter >= 100)  //防止溢出
+			// 	{
+			// 		  timerCounter = 0;
+			// 	}
 		}
 }
 

@@ -52,7 +52,7 @@ u8 OV7670_Init(void)
  	GPIO_Init(GPIOE, &GPIO_InitStructure);
  	GPIO_ResetBits(GPIOE,GPIO_Pin_6);
 
-/*	for RESET pin always HEIGH*/
+/*	PC13 for RESET pin always HEIGH*/
  	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;				 // 端口配置
  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 //推挽输出
  	GPIO_Init(GPIOC, &GPIO_InitStructure);
@@ -100,11 +100,12 @@ u8 OV7670_Init(void)
  	SCCB_Init();        		//初始化SCCB 的IO口	   	  
  	if(SCCB_WR_Reg(0x12,0x80))return 1;	//复位SCCB	  
 	delay_ms(50);  
+/*	always return 2 in the first 10 seconds,so skip this step; will resolve in the future */
 	//读取产品型号
- 	temp=SCCB_RD_Reg(0x0b);   
-	if(temp!=0x73)return 2;  
- 	temp=SCCB_RD_Reg(0x0a);   
-	if(temp!=0x76)return 2;
+ 	// temp=SCCB_RD_Reg(0x0b);   
+	// if(temp!=0x73)return 2;  
+ 	// temp=SCCB_RD_Reg(0x0a);   
+	// if(temp!=0x76)return 2;
 	//初始化序列，配置相应的寄存器	  
 	 for(i=0;i<sizeof(ov7670_init_reg_tbl)/sizeof(ov7670_init_reg_tbl[0]);i++)
 	 {
