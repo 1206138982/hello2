@@ -176,8 +176,8 @@ void motation(void)
     u8 loc2turn,turn_step_delay,str_delay,ok_delay;
     float oK2turn;
     loc2turn = 20;  //default 20
-    turn_step_delay = 100;   //default 35
-    str_delay = 150;    //default  50
+    turn_step_delay = 120;   //last 100
+    str_delay = 150;    //last  130
     oK2turn = 0.3;
     ok_delay = 50;
     if(lineDeviationLoc > loc2turn){

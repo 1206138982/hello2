@@ -5,7 +5,8 @@
     tim4 for right motor
     forward moving when tim4 ch1 > tim4 ch2    */
 
-#define SPEED_MIN   30
+#define SPEED_MIN   50  // last 30
+#define MAX_ARR_A     899
 extern u8 RUNNING;
 
 void set_speed(int speed_L,int speed_R)
@@ -17,20 +18,20 @@ void set_speed(int speed_L,int speed_R)
         return ;
     }
     if(speed_L >= 0){
-        TIM_SetCompare1(TIM3,MAX_ARR);
-        TIM_SetCompare2(TIM3,(int)(MAX_ARR*(1-speed_L/100.0)));
+        TIM_SetCompare3(TIM4,(int)(MAX_ARR_A*(1-speed_L/100.0)));
+        TIM_SetCompare4(TIM4,MAX_ARR_A);
     }
     else if(speed_L < 0){
-        TIM_SetCompare1(TIM3,(int)(MAX_ARR*(1+speed_L/100.0)));
-        TIM_SetCompare2(TIM3,MAX_ARR);
+        TIM_SetCompare3(TIM4,MAX_ARR_A);
+        TIM_SetCompare4(TIM4,(int)(MAX_ARR_A*(1+speed_L/100.0)));
     }
     if(speed_R >= 0){
-        TIM_SetCompare3(TIM4,MAX_ARR);
-        TIM_SetCompare4(TIM4,(int)(MAX_ARR*(1-speed_R/100.0)));
+        TIM_SetCompare1(TIM3,(int)(MAX_ARR_A*(1-speed_R/100.0)));
+        TIM_SetCompare2(TIM3,MAX_ARR_A);
     }
     else if(speed_R < 0){
-        TIM_SetCompare3(TIM4,(int)(MAX_ARR*(1+speed_R/100.0)));
-        TIM_SetCompare4(TIM4,MAX_ARR);
+        TIM_SetCompare1(TIM3,MAX_ARR_A);
+        TIM_SetCompare2(TIM3,(int)(MAX_ARR_A*(1+speed_R/100.0)));
     }
 }
 
@@ -70,21 +71,46 @@ void turn_right_A(void)
 
 void MotorA_start(void)
 {
-	motorA_PWM_Init(MAX_ARR,0);
+	motorA_PWM_Init(MAX_ARR_A,0);
+    // set_speed(SPEED_MIN+20,SPEED_MIN+20);
+    // delay_ms(20);
+    // set_speed(SPEED_MIN,SPEED_MIN);
 }
 
 void motorA_test(void)
 {
-    turn_left_A();
+    // turn_left_A();
+    // delay_ms(1000);
+    // turn_right_A();
+    // delay_ms(1000);
+    // stop_forward();
+    // return ;
+
+    // start_forward();
+    // delay_ms(1500);
+    // delay_ms(1500);
+    // stop_forward();
+    // // return ;
+
+    set_speed(0,0);
+    delay_ms(500);
+
+    set_speed(SPEED_MIN,SPEED_MIN);
     delay_ms(1000);
-    turn_right_A();
-    delay_ms(1000);
-    stop_forward();
+    set_speed(0,0);
+    delay_ms(500);
     return ;
 
-    start_forward();
-    delay_ms(1500);
-    delay_ms(1500);
+    set_speed(SPEED_MIN,0);
+    delay_ms(1000);
+    set_speed(0,0);
+    delay_ms(500);
+
+    set_speed(0,SPEED_MIN);
+    delay_ms(1000);
+    set_speed(0,0);
+    delay_ms(500);
+
     stop_forward();
     return ;
 

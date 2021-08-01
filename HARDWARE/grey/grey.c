@@ -85,31 +85,9 @@ void cameraOperation(void)
 		if(res1 == GOTSLOPE)
 		{
 			slope2stop = 0;
-			cmdByLine = getCmdBySlope();//获取命令
-			switch(cmdByLine)
-			{
-				case RIGHT0_30:
-					break;
-				case RIGHT30_45:
-					break;
-				case RIGHT45_60:
-					break;
-				case RIGHTMORETHAN60:
-					break;
-				
-				case LEFT0_30:
-					break;
-				case LEFT30_45:
-					break;
-				case LEFT45_60:
-					break;
-				case LEFTMORETHAN60:
-					break;
-				default:printf("ERROR!");
-					break;
-			}
 			/*专门做左右边界偏移检测的工作*/
-			res2 = getCmdByDeviLoc();//根据直线相对的偏移获取的命令
+			getCmdByDeviLoc();//根据直线相对的偏移获取的命令
+			// printToUart();
 #if defined(BIKING) && BIKING
 			motation();
 #endif
@@ -124,19 +102,17 @@ void cameraOperation(void)
 			if(slope2stop > 100){
 				printStopMess(2);
 #if defined(BIKING) && BIKING
-				RUNNING = 0;
+				// RUNNING = 0;
 #endif
 			}
 		}
 	}
-	// printToUart();
 	memsetBothBlackLoc();//做完一次摄像头采集刷新操作都要清空！
 }
 
 /*专门根据直线的水平位置偏移提供的接口，返回值就是命令*/
 int getCmdByDeviLoc()
 {
-	// u8 devLocRes = 0;  
 	devLocRes = getLineLocCompare2MidLine(&lineDeviationLoc);	
 	switch(devLocRes)
 	{
@@ -187,6 +163,7 @@ void cameraRefresh(void)
 	u32 m = 0;u32 n = 0;u32 mm = 0;u32 nn = 0;u16 color;
 	if(ov_sta)//有帧中断更新？
 	{
+		// printf("get ov_sta\r\n");
 #if defined(LCD_ON_OFF) && LCD_ON_OFF
 		LCD_Scan_Dir(DFT_SCAN_DIR);	//恢复默认扫描方向 
 #if defined(LCD_SHOW_INFO) && LCD_SHOW_INFO
@@ -317,6 +294,8 @@ void printToUart()
 	u32 mm;
 	u32 nn;
     u32 i,j;
+
+#if 0
 	for(i = 0;i < NEEDHEIGHT;i ++)
     {
 		printf("****");
@@ -334,6 +313,7 @@ void printToUart()
 		}
 		printf("****\n");
 	}
+#endif
 	
 	#if 0
 	/*打印左右边界点*/
@@ -366,7 +346,15 @@ void printToUart()
 //			  printf("%d ",maxUsefulBlackHeight[nn]);
 //		}
 
-//     printf("%lf\n",overK);
+#if 1
+	printf("MAX Len:%d:----",maxUsefulLineLen);
+	for(nn = 0;nn < maxUsefulLineLen;nn ++)
+	{
+		printf("%d:%d-%d ",nn,maxUsefulBlackLine[nn],maxUsefulBlackHeight[nn]);
+	}
+	nn = (int)(1000*overK);
+    printf("\r\nK:%d,b:%d\n",nn,b);
+#endif		
 		
 }
 
