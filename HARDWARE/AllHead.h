@@ -21,8 +21,9 @@
 #include "pid.h"
 #include "l298n.h"
 #include "move.h"
+#include "a4950.h"
 
-#define BIKING	1
+#define BIKING	0
 #if defined(BIKING) && BIKING
 #define SIMPLE_METHOD	1
 #define PID_METHOD	0

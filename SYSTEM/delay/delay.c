@@ -220,45 +220,16 @@ void delay_ms(u16 nms)
 	}while((temp&0x01)&&!(temp&(1<<16)));		//等待时间到达   
 	SysTick->CTRL&=~SysTick_CTRL_ENABLE_Msk;	//关闭计数器
 	SysTick->VAL =0X00;       					//清空计数器	  	    
-} 
+}
+
+void delay_lms(uint16_t nms)
+{
+	uint8_t times,i;
+	times = nms/1500;
+	for(i=0;i<times;i++)
+		delay_ms(1500);
+	times = nms%1500;
+	delay_ms(times);
+}
+
 #endif 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
