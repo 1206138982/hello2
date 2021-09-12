@@ -23,12 +23,12 @@
 #include "move.h"
 #include "a4950.h"
 
-#define BIKING	0
+#define BIKING	1
 #if defined(BIKING) && BIKING
-#define SIMPLE_METHOD	1
+#define SIMPLE_METHOD	0
 #define PID_METHOD	0
 #define FENCHA_TEST	0
-#define START_TEST	0
+#define START_TEST	1
 #endif
 
 #if defined(SIMPLE_METHOD) && SIMPLE_METHOD

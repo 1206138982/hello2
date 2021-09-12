@@ -11,5 +11,7 @@ void MotorA_start(void);
 void motorA_test(void);
 void turn_left_A(void);
 void turn_right_A(void);
+void left_back_only(void);
+void right_back_only(void);
 
 #endif

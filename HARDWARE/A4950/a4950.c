@@ -6,6 +6,7 @@
     forward moving when tim4 ch1 > tim4 ch2    */
 
 #define SPEED_MIN   50  // last 30
+#define SPEED_MAX   70
 #define MAX_ARR_A     899
 extern u8 RUNNING;
 
@@ -69,6 +70,32 @@ void turn_right_A(void)
     set_speed(SPEED_MIN,0);
 }
 
+void left_back_only(void)
+{
+    set_speed(-SPEED_MIN,0);
+}
+
+void right_back_only(void)
+{
+    set_speed(0,-SPEED_MIN);
+}
+
+void left_speed_add(uint8_t add)
+{
+    uint8_t max_add = SPEED_MAX-SPEED_MIN;
+    if(add > max_add)
+        add = max_add;
+    set_speed(SPEED_MIN+add,0);
+}
+
+void right_speed_add(uint8_t add)
+{
+    uint8_t max_add = SPEED_MAX-SPEED_MIN;
+    if(add > max_add)
+        add = max_add;
+    set_speed(0,SPEED_MIN+add);
+}
+
 void MotorA_start(void)
 {
 	motorA_PWM_Init(MAX_ARR_A,0);
@@ -79,50 +106,22 @@ void MotorA_start(void)
 
 void motorA_test(void)
 {
-    // turn_left_A();
-    // delay_ms(1000);
-    // turn_right_A();
-    // delay_ms(1000);
-    // stop_forward();
-    // return ;
+    start_forward();
+    delay_lms(2000);
+    stop_forward();
+    delay_ms(100);
 
-    // start_forward();
-    // delay_ms(1500);
-    // delay_ms(1500);
-    // stop_forward();
-    // // return ;
-
-    set_speed(0,0);
-    delay_ms(500);
-
-    set_speed(SPEED_MIN,SPEED_MIN);
+    left_back_only();
     delay_ms(1000);
-    set_speed(0,0);
-    delay_ms(500);
+    stop_forward();
+    delay_ms(100);
+    
+    right_back_only();
+    delay_ms(1000);
+    stop_forward();
+    delay_ms(100);
+
     return ;
-
-    set_speed(SPEED_MIN,0);
-    delay_ms(1000);
-    set_speed(0,0);
-    delay_ms(500);
-
-    set_speed(0,SPEED_MIN);
-    delay_ms(1000);
-    set_speed(0,0);
-    delay_ms(500);
-
-    stop_forward();
-    return ;
-
-    set_speed(40,0);
-    delay_ms(1000);
-    stop_forward();
-
-    set_speed(0,40);
-    delay_ms(1000);
-    stop_forward();
-	return ;
-
 }
 
 // /* https://blog.csdn.net/qq_36958104/article/details/83661117  */
