@@ -2,6 +2,7 @@
 #define __GREY_H__
 
 #include "sys.h"
+#include "AllHead.h"
 
 #define MODIFYVAL  3 //每次调整的大小
 #define MAXGREY  0xE0//最大灰度值
@@ -25,7 +26,7 @@
 
 #define MIDHORLOC (((NEEDWITH) / 2) - 1)//中间水平位置中点  59
 
-extern void cameraRefresh(void);
+extern uint8_t cameraRefresh(void);
 extern void changMidGrey(void);
 extern void printToUart(void);
 extern void getLineEdge(u8 *leftBlackLoc,u8 *rightBlackLoc,u16 startLine,u16 endLine,u16 skipLine);

@@ -25,10 +25,10 @@
 
 #define BIKING	1
 #if defined(BIKING) && BIKING
-#define SIMPLE_METHOD	0
+#define SIMPLE_METHOD	1
 #define PID_METHOD	0
 #define FENCHA_TEST	0
-#define START_TEST	1
+#define START_TEST	0
 #endif
 
 #if defined(SIMPLE_METHOD) && SIMPLE_METHOD
@@ -36,6 +36,7 @@
 #endif
 
 #if defined(FENCHA_TEST) && FENCHA_TEST
+#define MAP_TRY		1
 #define MAP_TESTA	1
 #define MAP_TESTB	0
 #endif

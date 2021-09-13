@@ -12,6 +12,7 @@ u8 RUNNING = 1;
 
 int main(void)
 {	 
+	uint8_t res = 0;
 	uart_init(115200);	 	//串口初始化为 115200	
 	JTAG_Set(0x01);
 	delay_init();	    	 //延时函数初始化	  
@@ -23,12 +24,15 @@ int main(void)
 	// MotorR_start();
 	RUNNING = 1;
 #if defined(PID_METHOD) && PID_METHOD
-	PID_init(&line_pid,1.6,0.07,5);
-	PID_init(&oK_pid,80,5,90);
+	// PID_init(&line_pid,1.6,0.07,5);
+	// PID_init(&oK_pid,80,5,90);
 /*   可以稳定的走直线
 	PID_init(&line_pid,1.6,0.07,5);
 	PID_init(&oK_pid,80,5,90);
 */
+	// for mg310 rismic qudong test
+	PID_init(&line_pid,0.03,0,0);
+	PID_init(&oK_pid,0.3,0,0);
 #endif
 #if defined(START_TEST) && START_TEST
 	// motor_test();      // for l298n
@@ -43,8 +47,11 @@ int main(void)
 	POINT_COLOR=RED;			//设置字体为红色 
 	LCD_ShowString(30,230,200,16,16,"OV7670 Init...");	  
 #endif
-	while(OV7670_Init())//初始化OV7670
+	res = 1;
+	while(res)//初始化OV7670
 	{
+		res = OV7670_Init();
+		printf("call OV7670_Init(),res:%d\r\n",res);
 #if defined(LCD_ON_OFF) && LCD_ON_OFF
 		LCD_ShowString(30,230,200,16,16,"OV7670 Error!!");
 		delay_ms(200);
@@ -60,12 +67,14 @@ int main(void)
 	EXTI11_Init();		// PB15 for ov7670 VSYNC interput pin in exti.c
 	OV7670_Window_Set(12,176,240,320); 
 	OV7670_CS=0;			
+	printf("before while 1\r\n");
 	while(1)
 	{
 #if defined(BIKING) && BIKING
 		if(RUNNING){
 #endif
 			cameraOperation();//摄像头更新显示以及后续的图像处理操作接口
+			delay_ms(1);
 #if defined(BIKING) && BIKING
 		}
 		else{

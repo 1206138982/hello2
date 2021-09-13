@@ -9,6 +9,14 @@ extern u8 rightBlackLoc[(NEEDHEIGHT)/(SKIPLINE)];
 extern u8 devLocRes;
 extern u8 FLAG_BORDER;
 
+#if defined(MAP_TRY) && MAP_TRY
+uint8_t left_fencha = 0;
+uint8_t right_fencha = 0;
+uint8_t both_fencha = 0;
+extern uint32_t frames_sum;
+extern uint32_t frames_fencha;
+#endif
+
 #if defined(DEBUG_CAMERA) && DEBUG_CAMERA
 extern u8 maxUsefulLineLen;
 extern u8 maxUsefulBlackLine[(NEEDHEIGHT)/(SKIPLINE)];
@@ -144,42 +152,55 @@ void motation(void)
 #if defined(SIMPLE_METHODNEW) && SIMPLE_METHODNEW
     u8 str_delaynew = 90;
     int turn_delay = 0;
+    uint8_t max_delay,min_delay;
+    max_delay = 200;
+    min_delay = 80;
     turn_delay = (int)(30*overK) + (int)(1*lineDeviationLoc);
+    turn_delay *= 6;
     printStopMess(turn_delay);
-    if(turn_delay > 80){
-        turn_delay = 80;
+    if(turn_delay > max_delay){
+        turn_delay = max_delay;
         // RUNNING = 0;
     }
-    if(turn_delay < -80){
-        turn_delay = -80;
+    if(turn_delay < -max_delay){
+        turn_delay = -max_delay;
         // RUNNING = 0;
     }
-    if(turn_delay<32 && turn_delay>-32){
-        Motor_Forward();
-        delay_ms(str_delaynew);
-        Motor_Stop();
+    if(turn_delay<min_delay && turn_delay>-min_delay){
+        start_forward();
+        delay_ms(min_delay);
+        stop_forward();
     }
     else{
         if(turn_delay > 0){
-            Motor_Turnright();
+            turn_right_A();
             delay_ms(turn_delay);
-            Motor_Stop();
+            stop_forward();
         }
         else{
-            Motor_Turnleft();
+            turn_left_A();
             delay_ms(-turn_delay);
             // delay_ms(30);
-            Motor_Stop();
+            stop_forward();
         }
     }
 #else
     u8 loc2turn,turn_step_delay,str_delay,ok_delay;
     float oK2turn;
+#if defined(FENCHA_TEST) && FENCHA_TEST || \
+    defined(MAP_TRY) && MAP_TRY
+    loc2turn = 12;  //default 20
+    turn_step_delay = 70;   //last 100
+    str_delay = 80;    //last  130
+    oK2turn = 0.1;   //last 0.2
+    ok_delay = 40;
+#else
     loc2turn = 20;  //default 20
     turn_step_delay = 120;   //last 100
     str_delay = 150;    //last  130
     oK2turn = 0.3;
     ok_delay = 50;
+#endif
     if(lineDeviationLoc > loc2turn){
         turn_right_A();
         delay_ms(turn_step_delay);
@@ -233,16 +254,14 @@ void motation(void)
     }
     speed_change = speed_line+speed_oK;
     printf("speed line:%d\tspeed ok:%d\t\tspeed change:%d\r\n",speed_line,speed_oK,speed_change);
-    Motor_Forward();
+    start_forward();
     if(speed_change > 0){
         //turn right;
-        left_add(speed_change);
-        right_add(0);
+        left_speed_add(speed_change);
     }
     else{
         //turn left
-        left_add(0);
-        right_add(-speed_change);
+        right_speed_add(-speed_change);
     }
 #endif
 }
@@ -272,14 +291,52 @@ void move_for_fencha(u8 times)
 }
 #endif
 
+#if defined(MAP_TRY) && MAP_TRY
+void motation_for_fencha(uint8_t n)
+{
+    switch(n){
+        case 0:
+            return ;
+        case 1:
+            left_fencha++;
+            switch(left_fencha){
+                case 1:
+                    turn2L();
+                    RUNNING = 0;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case 2:
+            right_fencha++;
+            switch(right_fencha){
+                case 1:
+                    printStopMess(19);
+                    RUNNING = 0;
+                default:
+                    break;
+            }
+            break;
+        case 3:
+            both_fencha++;
+            break;
+        default:
+            break;
+    }
+	frames_fencha = frames_sum;
+}
+#endif
+
 void turn2L(void)
 {
-    Motor_Forward();
-    delay_ms(800);
-    Motor_Leftback();
-    delay_ms(750);
-    forward_ten(200);
-    Motor_Stop();
+    start_forward();
+    delay_lms(2000);
+    left_back_only();
+    delay_lms(3200);
+    // start_forward();
+    // delay_ms(500);
+    stop_forward();
 }
 
 void turn2R(void)
@@ -289,18 +346,18 @@ void turn2R(void)
     Motor_Rightback();
     delay_ms(750);
     forward_ten(200);
-    Motor_Stop();
+    stop_forward();
 }
 
 void forward_ten(u16 ms_forward)
 {
     int i,n;
     n = ms_forward/1500;
-    Motor_Forward();
+    start_forward();
     for(i=0;i<n;i++)
         delay_ms(1500);
     delay_ms(ms_forward%1500);
-    Motor_Stop();
+    stop_forward();
 }
 
 #if defined(MAP_TESTB) && MAP_TESTB	

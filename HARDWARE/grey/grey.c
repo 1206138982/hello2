@@ -5,17 +5,23 @@
 extern u8 RUNNING;
 #endif
 
+#if defined(MAP_TRY) && MAP_TRY
+uint8_t fencha_processing(void);
+uint32_t frames_sum = 0;
+uint32_t frames_fencha = 0;
+uint16_t frames_change_fencha = 20;
+#endif
+
 #if defined(FENCHA_TEST) && FENCHA_TEST
-u8 max_black_fencha = 80;
+u8 max_black_fencha = 50;  //last 80
 #if defined(MAP_TESTA) && MAP_TESTA
 extern u8 fencha_times;
 #endif
 #endif
 
-// u8 MidGreyVal = 0x78;//可调阀值
 // u8 MidGreyVal = 0x60;//可调阀值  for wet day in windows
-u8 MidGreyVal = 0x58;//可调阀值 for day test in floor
-// u8 MidGreyVal = 0x36;//可调阀值 for night test in windows
+// u8 MidGreyVal = 0x78;//可调阀值 for day test in floor
+u8 MidGreyVal = 0x36;//可调阀值 for night test in windows
 // u8 MidGreyVal = 0x48;//可调阀值 for night test in floor  fail!!
 // u8 MidGreyVal = 0x45;//可调阀值 for night test in A4 paper
 
@@ -51,7 +57,9 @@ void cameraOperation(void)
 	static u8 line2stop = 0;
 	static u8 slope2stop = 0;
 	i = res2 = res1 = res = 0;
-    cameraRefresh();//图像采集二值化以及LCD显示
+	cameraRefresh();
+    // if(cameraRefresh())//图像采集二值化以及LCD显示
+	// 	return ;
 	/*紧接着分析边沿，获取左右黑点位置，最后一个参数为检测时的间隔行数*/
 	getLineEdge(leftBlackLoc,rightBlackLoc,1,NEEDHEIGHT-1,SKIPLINE);   //the first is all 0,showing in serial port tool by printToUart(),so start at line 1
 #if defined(DEBUG_CAMERA) && DEBUG_CAMERA
@@ -62,6 +70,12 @@ void cameraOperation(void)
 #endif
 #if defined(MAP_TESTB) && MAP_TESTB	
 	find_fencha_move();
+#endif
+#if defined(MAP_TRY) && MAP_TRY
+	if(frames_sum-frames_fencha>frames_change_fencha || frames_fencha==0){
+		res = fencha_processing();
+		motation_for_fencha(res);
+	}
 #endif
 	/*获取最长的有效段，只取一个有效段 save in maxUsefulBlackLine and maxUsefulBlackHeight*/
     res = getUsefulLine();
@@ -158,12 +172,15 @@ void memsetBothBlackLoc()
 /*
 函数功能：从OV7670的FIFO中读出像素，在翻转的基础上进行二值化，并在LCD上显示调试
 */
-void cameraRefresh(void)
+uint8_t cameraRefresh(void)
 {
 	u32 m = 0;u32 n = 0;u32 mm = 0;u32 nn = 0;u16 color;
 	if(ov_sta)//有帧中断更新？
 	{
 		// printf("get ov_sta\r\n");
+#if defined(MAP_TRY) && MAP_TRY
+		frames_sum++;
+#endif
 #if defined(LCD_ON_OFF) && LCD_ON_OFF
 		LCD_Scan_Dir(DFT_SCAN_DIR);	//恢复默认扫描方向 
 #if defined(LCD_SHOW_INFO) && LCD_SHOW_INFO
@@ -253,7 +270,9 @@ void cameraRefresh(void)
 			}
 		}
 #endif
+	return 0;
 	 }
+	return 1;
 }	   
 
 
@@ -295,7 +314,7 @@ void printToUart()
 	u32 nn;
     u32 i,j;
 
-#if 0
+#if 1
 	for(i = 0;i < NEEDHEIGHT;i ++)
     {
 		printf("****");
@@ -315,7 +334,7 @@ void printToUart()
 	}
 #endif
 	
-	#if 0
+#if 0
 	/*打印左右边界点*/
 	printf("Left:");
 	for(mm = 0;mm < (NEEDHEIGHT)/(SKIPLINE);mm ++)
@@ -330,7 +349,7 @@ void printToUart()
 	{
 		printf("%d ",rightBlackLoc[nn]);
 	}
-	#endif
+#endif
 
 ////打印最长边界
 //		printf("\n");
@@ -346,7 +365,7 @@ void printToUart()
 //			  printf("%d ",maxUsefulBlackHeight[nn]);
 //		}
 
-#if 1
+#if 0
 	printf("MAX Len:%d:----",maxUsefulLineLen);
 	for(nn = 0;nn < maxUsefulLineLen;nn ++)
 	{
@@ -372,6 +391,7 @@ void getLineEdge(u8 *leftBlackLoc,u8 *rightBlackLoc,u16 startLine,u16 endLine,u1
 #if defined(MAP_TESTA) && MAP_TESTA
 	u8 get_fencha = 0;
 	u8 fencha_start = 0;
+	uint8_t max_fencha_num = 1;
 #endif
 	FLAG_BORDER = 0;
 	
@@ -423,19 +443,19 @@ void getLineEdge(u8 *leftBlackLoc,u8 *rightBlackLoc,u16 startLine,u16 endLine,u1
 			}
 		}
 		if(left_loc_get == 0){
-			*leftBlackLoc = 0;
+			*leftBlackLoc = 0xff;
 		}
 		if(right_loc_get == 0){
-			*rightBlackLoc = 0;
+			*rightBlackLoc = 0xff;
 		}
 			//准备下一行
 		rightBlackLoc ++;leftBlackLoc  ++;				
 #if defined(MAP_TESTA) && MAP_TESTA
 		if(get_fencha > max_black_fencha){
 			fencha_times++;
-			if(fencha_times < 5){
+			if(fencha_times <= max_fencha_num){
 				move_for_fencha(fencha_times);
-				if(fencha_times == 5)
+				if(fencha_times == max_fencha_num)
 					RUNNING = 0;
 				if(fencha_start <= 20)
 					printStopMess(5);
@@ -447,6 +467,30 @@ void getLineEdge(u8 *leftBlackLoc,u8 *rightBlackLoc,u16 startLine,u16 endLine,u1
 #endif
 	}
 }
+
+#if defined(MAP_TRY) && MAP_TRY
+uint8_t fencha_processing(void)
+{
+	uint8_t i,num,left_get,right_get;
+	left_get = 0;
+	right_get = 0;
+	num = 3;
+	for(i=0;i<(NEEDHEIGHT)/(SKIPLINE);i++){
+		if(leftBlackLoc[i] <= 7)
+			left_get++;
+		if(rightBlackLoc[i]>=110 && rightBlackLoc[i]<119)
+			right_get++;
+	}
+	if(left_get>=num && right_get>=num)
+		return 3;
+	else if(left_get >= num)
+		return 1;
+	else if(right_get >= num)
+		return 2;
+	else
+		return 0;
+}
+#endif
 
 /*将获取有效段的函数部分进行复用*/
 //参数分别是 原始段  段前0的个数  存储最长有效段的位置数组  存储最长长度  存储最长有效段的高度位置

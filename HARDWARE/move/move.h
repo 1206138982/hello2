@@ -17,5 +17,8 @@ void find_fencha_move(void);
 #endif
 void motation(void);
 void printStopMess(int reason);
+#if defined(MAP_TRY) && MAP_TRY
+void motation_for_fencha(uint8_t n);
+#endif
 
 #endif
