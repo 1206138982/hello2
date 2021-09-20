@@ -1,0 +1,19 @@
+OV7670    STM32
+RRST      PE0
+WRST      PE1
+OE        PE2
+WR        PE3
+RCK       PE4
+PWDN      PE6
+RESET     PC13
+D0-D7     PF0-PF7
+
+SDA       PC11
+VSYNC     PC12
+SCL       PC10
+
+driver    STM32
+AIN1      PB4
+AIN2      PB5
+BIN1      PB8
+BIN2      PB9

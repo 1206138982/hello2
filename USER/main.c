@@ -24,12 +24,12 @@ int main(void)
 	// MotorR_start();
 	RUNNING = 1;
 #if defined(PID_METHOD) && PID_METHOD
-/*   可以稳定的走直线
-	PID_init(&line_pid,0.8,0.03,2);
-	PID_init(&oK_pid,20,3,30);
+/*   finish it
+	PID_init(&line_pid,3,0.1,2);
+	PID_init(&oK_pid,40,3,30);
 */
-	PID_init(&line_pid,0.8,0.03,2);
-	PID_init(&oK_pid,20,3,30);
+	PID_init(&line_pid,3,0.1,2);
+	PID_init(&oK_pid,40,3,30);
 #endif
 #if defined(START_TEST) && START_TEST
 	// motor_test();      // for l298n

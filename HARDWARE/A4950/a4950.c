@@ -8,6 +8,7 @@
 #define SPEED_MIN   45
 #define SPEED_MAX   55
 #define MAX_ARR_A     899
+#define EXEC_MAX    6
 extern u8 RUNNING;
 
 void set_speed(int speed_L,int speed_R)
@@ -83,13 +84,13 @@ void right_back_only(void)
 void left_speed_add(uint8_t add)
 {
     uint8_t max_add = SPEED_MAX-SPEED_MIN;
-    if(add > max_add){
-        add = max_add;
-    }
-    if(add > max_add*2){
-        set_speed(SPEED_MIN,0);
+    if(add > max_add*EXEC_MAX){
+        set_speed(SPEED_MIN+3,0);
     }
     else{
+        if(add > max_add){
+            add = max_add;
+        }
         set_speed(SPEED_MIN+add,SPEED_MIN);
     }
 }
@@ -97,13 +98,13 @@ void left_speed_add(uint8_t add)
 void right_speed_add(uint8_t add)
 {
     uint8_t max_add = SPEED_MAX-SPEED_MIN;
-    if(add > max_add){
-        add = max_add;
-    }
-    if(add > max_add*2){
-        set_speed(0,SPEED_MIN);
+    if(add > max_add*EXEC_MAX){
+        set_speed(0,SPEED_MIN+3);
     }
     else{
+        if(add > max_add){
+            add = max_add;
+        }
         set_speed(SPEED_MIN,SPEED_MIN+add);
     }
 }
