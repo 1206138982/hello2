@@ -5,8 +5,8 @@
     tim4 for right motor
     forward moving when tim4 ch1 > tim4 ch2    */
 
-#define SPEED_MIN   50  // last 30
-#define SPEED_MAX   70
+#define SPEED_MIN   45
+#define SPEED_MAX   55
 #define MAX_ARR_A     899
 extern u8 RUNNING;
 
@@ -83,25 +83,34 @@ void right_back_only(void)
 void left_speed_add(uint8_t add)
 {
     uint8_t max_add = SPEED_MAX-SPEED_MIN;
-    if(add > max_add)
+    if(add > max_add){
         add = max_add;
-    set_speed(SPEED_MIN+add,0);
+    }
+    if(add > max_add*2){
+        set_speed(SPEED_MIN,0);
+    }
+    else{
+        set_speed(SPEED_MIN+add,SPEED_MIN);
+    }
 }
 
 void right_speed_add(uint8_t add)
 {
     uint8_t max_add = SPEED_MAX-SPEED_MIN;
-    if(add > max_add)
+    if(add > max_add){
         add = max_add;
-    set_speed(0,SPEED_MIN+add);
+    }
+    if(add > max_add*2){
+        set_speed(0,SPEED_MIN);
+    }
+    else{
+        set_speed(SPEED_MIN,SPEED_MIN+add);
+    }
 }
 
 void MotorA_start(void)
 {
 	motorA_PWM_Init(MAX_ARR_A,0);
-    // set_speed(SPEED_MIN+20,SPEED_MIN+20);
-    // delay_ms(20);
-    // set_speed(SPEED_MIN,SPEED_MIN);
 }
 
 void motorA_test(void)

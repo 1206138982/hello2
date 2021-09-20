@@ -25,8 +25,8 @@
 
 #define BIKING	1
 #if defined(BIKING) && BIKING
-#define SIMPLE_METHOD	1
-#define PID_METHOD	0
+#define SIMPLE_METHOD	0
+#define PID_METHOD	1
 #define FENCHA_TEST	0
 #define START_TEST	0
 #endif
@@ -43,7 +43,7 @@
 
 #define DEBUG_CAMERA	0
 #define CHANGE_PIN	1   	// change in ov7670.h when switch
-#define LCD_ON_OFF	0
+#define LCD_ON_OFF	1
 
 #if defined(LCD_ON_OFF) && LCD_ON_OFF
 #define LCD_SHOW_INFO	1

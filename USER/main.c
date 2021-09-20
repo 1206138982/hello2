@@ -24,15 +24,12 @@ int main(void)
 	// MotorR_start();
 	RUNNING = 1;
 #if defined(PID_METHOD) && PID_METHOD
-	// PID_init(&line_pid,1.6,0.07,5);
-	// PID_init(&oK_pid,80,5,90);
 /*   可以稳定的走直线
-	PID_init(&line_pid,1.6,0.07,5);
-	PID_init(&oK_pid,80,5,90);
+	PID_init(&line_pid,0.8,0.03,2);
+	PID_init(&oK_pid,20,3,30);
 */
-	// for mg310 rismic qudong test
-	PID_init(&line_pid,0.03,0,0);
-	PID_init(&oK_pid,0.3,0,0);
+	PID_init(&line_pid,0.8,0.03,2);
+	PID_init(&oK_pid,20,3,30);
 #endif
 #if defined(START_TEST) && START_TEST
 	// motor_test();      // for l298n
