@@ -19,4 +19,4 @@ BIN1      PB8
 BIN2      PB9
 
 update state:
-2021-11-07: keil project 专门用来小车循迹用，采用 F103ZE ov7670 camera，一般方法可以循迹，PID算法可能有调通
+2021-11-07: 应该是 new car project，刚换上新的小车，新的马达；keil project 专门用来小车循迹用，采用 F103ZE ov7670 camera，一般方法可以循迹，PID算法可能有调通
